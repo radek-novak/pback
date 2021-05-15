@@ -8,7 +8,7 @@ const sleep = (ms: number) =>
 async function succeeding() {
   let calledTimes = 0;
 
-  const expensiveCalculation = (id: string, time = 1000) => {
+  const expensiveCalculation = (id: string, time = 100) => {
     calledTimes++;
 
     return new Promise((resolve) => {
@@ -24,7 +24,7 @@ async function succeeding() {
       .map((_, i) => dedupedExpensiveCalc(i % 3 === 0 ? "a" : "b", i))
   );
 
-  console.log({ result });
+  console.log({ succeeding: result });
 
   console.assert(
     calledTimes === 2,
@@ -35,7 +35,7 @@ async function succeeding() {
 async function timingOut() {
   let calledTimes = 0;
 
-  const expensiveCalculation = (id: string, time = 6000) => {
+  const expensiveCalculation = (id: string, time: number) => {
     calledTimes++;
 
     return new Promise((resolve) => {
@@ -43,15 +43,17 @@ async function timingOut() {
     });
   };
 
-  const dedupedExpensiveCalc = deduper((id, n) => id, expensiveCalculation);
+  const dedupedExpensiveCalc = deduper((id, n) => id, expensiveCalculation, {
+    timeout: 1,
+  });
 
   const result = await Promise.all(
     new Array(100)
       .fill(0)
-      .map((_, i) => dedupedExpensiveCalc(i % 3 === 0 ? "a" : "b", 6000))
+      .map((_, i) => dedupedExpensiveCalc(i % 3 === 0 ? "a" : "b", 100))
   ).catch((e) => e);
 
-  console.log(result);
+  console.log({ timingOut: result });
 
   console.assert(result === "Timeout passed", `Timed out: ${result}`);
   console.assert(
@@ -72,7 +74,7 @@ async function succeedingLastLate() {
   };
 
   const dedupedExpensiveCalc = deduper((id, n) => id, expensiveCalculation, {
-    timeout: 1000,
+    timeout: 100,
   });
 
   dedupedExpensiveCalc("a", 10);
@@ -81,12 +83,10 @@ async function succeedingLastLate() {
   dedupedExpensiveCalc("a", 10);
   await sleep(1);
   dedupedExpensiveCalc("a", 10);
-  await sleep(2000);
+  await sleep(200);
   dedupedExpensiveCalc("a", 10);
 
   await sleep(100);
-
-  console.log(calledTimes);
 
   console.assert(
     calledTimes === 4,
