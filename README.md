@@ -2,12 +2,14 @@
 
 _(piggy-back)_
 
+_**Experimental and untested**_
+
 Any pure function in the form `(...args) => Promise`, can be passed to `deduper` and subsequent
 requests with the same arguments will wait for the result of the first one that arrived.
 This is meant to prevent unnecessary http or database requests.
 
 ```
-npm install
+npm install pback
 ```
 
 ```JS
