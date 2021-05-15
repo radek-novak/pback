@@ -9,6 +9,14 @@ const defaultOptions = {
   timeout: 10_000,
 };
 
+/**
+ * Any pure function in the form `(...args) => Promise`, can be passed to `deduper` and subsequent
+ * requests with the same arguments will wait for the result of the first one that arrived.
+ * This is meant to prevent unnecessary http or database requests.
+ * @param keyFn function that generates key for the internal cache, receives same params as the deduped function
+ * @param fn function whose invocation is being deduplicated
+ * @param options { timeout } - timeout in ms after which the task fails, default is 10s
+ */
 const deduper = <Key extends any, FnParams extends any[], Result extends any>(
   keyFn: (...params: FnParams) => Key,
   fn: (...params: FnParams) => Promise<Result>,

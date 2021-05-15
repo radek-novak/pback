@@ -1,11 +1,22 @@
 # pback
 
+_(piggy-back)_
+
 Any pure function in the form `(...args) => Promise`, can be passed to `deduper` and subsequent
 requests with the same arguments will wait for the result of the first one that arrived.
-Typically, you'd use this for
+This is meant to prevent unnecessary http or database requests.
 
 ```
 npm install
+```
+
+```JS
+/**
+ * @param keyFn function that generates key for the internal cache, receives same params as the deduped function
+ * @param fn function whose invocation is being deduplicated
+ * @param options { timeout } - timeout in ms after which the task fails, default is 10s
+ * @returns promise (same as the fn)
+ */
 ```
 
 ```TypeScript
